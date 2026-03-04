@@ -1,33 +1,27 @@
-name: Actualización Automática EPG
+name: Sincronizar con Tigre Automáticamente
 on:
   schedule:
-    - cron: '0 6 * * *' # Se ejecuta a las 6 AM cada día
-  workflow_dispatch:   # Te permite darle a un botón para actualizar cuando quieras
+    - cron: '0 8 * * *' # Se ejecutará solo todas las mañanas
+  workflow_dispatch:   # Te permite activarlo tú cuando quieras
 
 jobs:
-  actualizar:
+  sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Configurar Python
-        uses: actions/setup-python@v4
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          python-version: '3.x'
-
-      - name: Instalar dependencias
-        run: pip install requests beautifulsoup4 lxml
-
-      - name: Ejecutar Actualización
-        run: |
-          # Aquí es donde el script hará la magia
-          # Por ahora, esto mantendrá tus archivos listos
-          echo "Actualizando guías..." 
-
-      - name: Guardar cambios
+          fetch-depth: 0
+      
+      - name: Configurar Git
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add *.xml
-          git commit -m "EPG Actualizada $(date)" || echo "Sin cambios"
-          git push
+      
+      - name: Traer cambios de Tigre
+        run: |
+          git remote add upstream https://github.com/TIGRE9725/guia.git
+          git fetch upstream
+          git checkout main
+          git merge upstream/main --allow-unrelated-histories -m "Sincronización automática"
+          git push origin main
