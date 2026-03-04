@@ -1,0 +1,33 @@
+name: Actualización Automática EPG
+on:
+  schedule:
+    - cron: '0 6 * * *' # Se ejecuta a las 6 AM cada día
+  workflow_dispatch:   # Te permite darle a un botón para actualizar cuando quieras
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Instalar dependencias
+        run: pip install requests beautifulsoup4 lxml
+
+      - name: Ejecutar Actualización
+        run: |
+          # Aquí es donde el script hará la magia
+          # Por ahora, esto mantendrá tus archivos listos
+          echo "Actualizando guías..." 
+
+      - name: Guardar cambios
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add *.xml
+          git commit -m "EPG Actualizada $(date)" || echo "Sin cambios"
+          git push
